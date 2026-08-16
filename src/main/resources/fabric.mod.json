@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "ccfms",
+  "version": "${version}",
+  "name": "Custom Commands for my Server",
+  "description": "Home, RTP, TPA, spawn, back, and player settings commands.",
+  "authors": [
+    "lukasos-gd"
+  ],
+  "contact": {},
+  "license": "Apache-2.0",
+  "icon": "assets/ccfms/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.lukasos.ccfms.CcfmsMod"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "minecraft": "~1.26",
+    "java": ">=25",
+    "fabric-api": "*"
+  }
+}
