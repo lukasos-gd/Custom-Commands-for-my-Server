@@ -14,12 +14,14 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.RelativeMovement;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class CcfmsMod implements ModInitializer {
     public static final String MOD_ID = "ccfms";
@@ -50,22 +52,22 @@ public class CcfmsMod implements ModInitializer {
         });
     }
 
-    public static void teleport(ServerPlayerEntity player, ServerWorld world, double x, double y, double z, float yaw, float pitch) {
-        player.teleport(world, x, y, z, yaw, pitch);
+    public static void teleport(ServerPlayer player, ServerLevel world, double x, double y, double z, float yaw, float pitch) {
+        player.teleportTo(world, x, y, z, Set.<RelativeMovement>of(), yaw, pitch);
     }
 
-    public static HomeLocation currentLocation(ServerPlayerEntity player) {
-        Vec3d pos = player.getPos();
+    public static HomeLocation currentLocation(ServerPlayer player) {
+        Vec3 pos = player.position();
         return new HomeLocation(
-                player.getWorld().getRegistryKey().getValue().toString(),
+                player.level().dimension().location().toString(),
                 pos.x, pos.y, pos.z,
-                player.getYaw(), player.getPitch()
+                player.getYRot(), player.getXRot()
         );
     }
 
-    public static ServerWorld worldFromDimensionId(MinecraftServer server, String dimensionId) {
-        for (ServerWorld w : server.getWorlds()) {
-            if (w.getRegistryKey().getValue().toString().equals(dimensionId)) {
+    public static ServerLevel worldFromDimensionId(MinecraftServer server, String dimensionId) {
+        for (ServerLevel w : server.getAllLevels()) {
+            if (w.dimension().location().toString().equals(dimensionId)) {
                 return w;
             }
         }
