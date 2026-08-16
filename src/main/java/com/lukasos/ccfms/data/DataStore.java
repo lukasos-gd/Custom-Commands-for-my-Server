@@ -3,7 +3,7 @@ package com.lukasos.ccfms.data;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.WorldSavePath;
+import net.minecraft.world.level.storage.LevelResource;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -15,11 +15,12 @@ import java.nio.file.Path;
 
 public final class DataStore {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    private static final LevelResource DATA_FOLDER = new LevelResource("ccfms-data");
 
     private DataStore() {}
 
     public static Path dataDir(MinecraftServer server) {
-        Path dir = server.getSavePath(WorldSavePath.ROOT).resolve("ccfms-data");
+        Path dir = server.getWorldPath(DATA_FOLDER);
         try {
             Files.createDirectories(dir);
         } catch (IOException e) {
