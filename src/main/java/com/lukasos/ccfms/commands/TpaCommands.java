@@ -41,19 +41,15 @@ public class TpaCommands {
             source.sendFailure(Component.literal("You can't send a teleport request to yourself."));
             return 0;
         }
-        if (!CcfmsMod.settingsManager.get(target.getUUID()).acceptTpaRequests) {
-            source.sendFailure(Component.literal(target.getName().getString() + " isn't accepting teleport requests right now."));
-            return 0;
-        }
 
         CcfmsMod.tpaManager.addRequest(sender.getUUID(), target.getUUID());
 
         source.sendSuccess(() -> Component.literal("Teleport request sent to " + target.getName().getString() + "."), false);
 
         Component accept = Component.literal("[Accept]").withStyle(ChatFormatting.GREEN)
-                .withStyle(s -> s.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tpaccept")));
+                .withStyle(s -> s.withClickEvent(new ClickEvent.RunCommand("/tpaccept")));
         Component deny = Component.literal("[Deny]").withStyle(ChatFormatting.RED)
-                .withStyle(s -> s.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tpdeny")));
+                .withStyle(s -> s.withClickEvent(new ClickEvent.RunCommand("/tpdeny")));
 
         target.sendSystemMessage(Component.literal(sender.getName().getString() + " wants to teleport to you. ")
                 .append(accept).append(Component.literal(" ")).append(deny));
@@ -86,7 +82,7 @@ public class TpaCommands {
         }
 
         CcfmsMod.backManager.record(sender.getUUID(), CcfmsMod.currentLocation(sender));
-        ServerLevel destWorld = target.serverLevel();
+        ServerLevel destWorld = target.level();
         CcfmsMod.teleport(sender, destWorld, target.getX(), target.getY(), target.getZ(), sender.getYRot(), sender.getXRot());
 
         sender.sendSystemMessage(Component.literal("Teleport request accepted."));
