@@ -3,7 +3,7 @@
   "id": "ccfms",
   "version": "${version}",
   "name": "Custom Commands for my Server",
-  "description": "Home, RTP, TPA, spawn, back, and player settings commands.",
+  "description": "Home, RTP, TPA, spawn and back commands.",
   "authors": [
     "lukasos-gd"
   ],
