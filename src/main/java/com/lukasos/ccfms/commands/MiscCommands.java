@@ -23,7 +23,7 @@ public class MiscCommands {
         dispatcher.register(literal("setspawn")
                 .requires(src -> {
                     ServerPlayer player = src.getPlayer();
-                    return player == null || src.getServer().getPlayerList().isOp(player.getGameProfile());
+                    return player == null || src.getServer().getPlayerList().isOp(player.nameAndId());
                 })
                 .executes(ctx -> setSpawn(ctx.getSource())));
     }
