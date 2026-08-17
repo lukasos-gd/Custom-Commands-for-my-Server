@@ -18,16 +18,16 @@ public class HomeCommands {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(literal("home")
                 .executes(ctx -> goHome(ctx.getSource(), com.lukasos.ccfms.data.HomeManager.DEFAULT_NAME))
-                .then(argument("name", StringArgumentType.word())
+                .then(argument("name", StringArgumentType.greedyString())
                         .executes(ctx -> goHome(ctx.getSource(), StringArgumentType.getString(ctx, "name")))));
 
         dispatcher.register(literal("sethome")
                 .executes(ctx -> setHome(ctx.getSource(), com.lukasos.ccfms.data.HomeManager.DEFAULT_NAME))
-                .then(argument("name", StringArgumentType.word())
+                .then(argument("name", StringArgumentType.greedyString())
                         .executes(ctx -> setHome(ctx.getSource(), StringArgumentType.getString(ctx, "name")))));
 
         dispatcher.register(literal("delhome")
-                .then(argument("name", StringArgumentType.word())
+                .then(argument("name", StringArgumentType.greedyString())
                         .executes(ctx -> delHome(ctx.getSource(), StringArgumentType.getString(ctx, "name")))));
 
         dispatcher.register(literal("homes")
