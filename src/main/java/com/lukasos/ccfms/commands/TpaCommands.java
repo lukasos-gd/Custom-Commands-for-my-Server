@@ -90,7 +90,6 @@ public class TpaCommands {
         ServerPlayer mover = req.type == TpaManager.RequestType.HERE ? responder : requester;
         ServerPlayer stationary = req.type == TpaManager.RequestType.HERE ? requester : responder;
 
-        CcfmsMod.backManager.record(mover.getUUID(), CcfmsMod.currentLocation(mover));
         ServerLevel destWorld = stationary.level();
         CcfmsMod.teleport(mover, destWorld, stationary.getX(), stationary.getY(), stationary.getZ(), mover.getYRot(), mover.getXRot());
 
