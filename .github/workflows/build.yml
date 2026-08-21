@@ -29,5 +29,5 @@ jobs:
       - name: Upload jar artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ccfms
+          name: ccfms-mod
           path: build/libs/*.jar
