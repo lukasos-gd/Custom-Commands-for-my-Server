@@ -33,7 +33,7 @@ public class MiscCommands {
         if (player == null) return 0;
         HomeLocation loc = CcfmsMod.backManager.get(player.getUUID());
         if (loc == null) {
-            source.sendFailure(Component.literal("You have nowhere to go back to."));
+            source.sendFailure(Component.literal("No saved position yet. Your position is saved automatically every 20 seconds."));
             return 0;
         }
         ServerLevel world = CcfmsMod.worldFromDimensionId(source.getServer(), loc.dimension);
@@ -41,10 +41,8 @@ public class MiscCommands {
             source.sendFailure(Component.literal("That location's dimension no longer exists."));
             return 0;
         }
-        HomeLocation current = CcfmsMod.currentLocation(player);
         CcfmsMod.teleport(player, world, loc.x, loc.y, loc.z, loc.yaw, loc.pitch);
-        CcfmsMod.backManager.record(player.getUUID(), current);
-        source.sendSuccess(() -> Component.literal("Teleported back."), false);
+        source.sendSuccess(() -> Component.literal("Teleported to your last saved position."), false);
         return 1;
     }
 
@@ -58,7 +56,6 @@ public class MiscCommands {
         }
         ServerLevel world = CcfmsMod.worldFromDimensionId(source.getServer(), spawn.dimension);
         if (world == null) return 0;
-        CcfmsMod.backManager.record(player.getUUID(), CcfmsMod.currentLocation(player));
         CcfmsMod.teleport(player, world, spawn.x, spawn.y, spawn.z, spawn.yaw, spawn.pitch);
         source.sendSuccess(() -> Component.literal("Teleported to spawn."), false);
         return 1;
