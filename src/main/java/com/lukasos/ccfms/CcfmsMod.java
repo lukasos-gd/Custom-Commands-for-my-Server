@@ -4,6 +4,7 @@ import com.lukasos.ccfms.commands.HomeCommands;
 import com.lukasos.ccfms.commands.ListCommand;
 import com.lukasos.ccfms.commands.MiscCommands;
 import com.lukasos.ccfms.commands.OffendCommand;
+import com.lukasos.ccfms.commands.PlayerInfoCommand;
 import com.lukasos.ccfms.commands.RtpCommand;
 import com.lukasos.ccfms.commands.TpaCommands;
 import com.lukasos.ccfms.data.BackManager;
@@ -11,6 +12,7 @@ import com.lukasos.ccfms.data.BanManager;
 import com.lukasos.ccfms.data.BanRecord;
 import com.lukasos.ccfms.data.HomeLocation;
 import com.lukasos.ccfms.data.HomeManager;
+import com.lukasos.ccfms.data.PlayerRegistry;
 import com.lukasos.ccfms.data.TpaManager;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -35,6 +37,7 @@ public class CcfmsMod implements ModInitializer {
 
     public static final HomeManager homeManager = new HomeManager();
     public static final BanManager banManager = new BanManager();
+    public static final PlayerRegistry playerRegistry = new PlayerRegistry();
     public static final TpaManager tpaManager = new TpaManager();
     public static final BackManager backManager = new BackManager();
     public static final Map<String, HomeLocation> spawnPoints = new HashMap<>();
@@ -45,6 +48,7 @@ public class CcfmsMod implements ModInitializer {
     public void onInitialize() {
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             ServerPlayer player = handler.getPlayer();
+            playerRegistry.recordJoin(player.getUUID(), player.getName().getString());
             BanRecord record = banManager.getBan(player.getUUID());
             if (record != null) {
                 handler.disconnect(buildBanMessage(record, banManager.getAppealInfo()));
@@ -68,6 +72,7 @@ public class CcfmsMod implements ModInitializer {
             MiscCommands.register(dispatcher);
             ListCommand.register(dispatcher);
             OffendCommand.register(dispatcher);
+            PlayerInfoCommand.register(dispatcher);
         });
     }
 
