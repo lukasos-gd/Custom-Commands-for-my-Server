@@ -16,6 +16,7 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -31,7 +32,7 @@ public class CcfmsMod implements ModInitializer {
     public static final String MOD_ID = "ccfms";
 
     public static HomeManager homeManager;
-    public static BanManager banManager;
+    public static final BanManager banManager = new BanManager();
     public static final TpaManager tpaManager = new TpaManager();
     public static final BackManager backManager = new BackManager();
     public static final Map<String, HomeLocation> spawnPoints = new HashMap<>();
@@ -40,7 +41,6 @@ public class CcfmsMod implements ModInitializer {
     public void onInitialize() {
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
             homeManager = new HomeManager(server);
-            banManager = new BanManager(server);
         });
 
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
@@ -85,10 +85,12 @@ public class CcfmsMod implements ModInitializer {
 
     public static Component buildBanMessage(BanRecord record, String appealInfo) {
         String expiry = com.lukasos.ccfms.commands.OffendCommand.formatExpiry(record.expiresAt);
-        String message = "You have been banned from this server.\n"
-                + "Reason: " + record.reason + "\n"
-                + "Duration: " + expiry + "\n"
-                + "Appeal: " + appealInfo;
-        return Component.literal(message);
+        return Component.literal("You are banned from this server\n\n").withStyle(ChatFormatting.RED, ChatFormatting.BOLD)
+                .append(Component.literal("Reason:  ").withStyle(ChatFormatting.GRAY))
+                .append(Component.literal(record.reason + "\n").withStyle(ChatFormatting.WHITE))
+                .append(Component.literal("Duration: ").withStyle(ChatFormatting.GRAY))
+                .append(Component.literal(expiry + "\n").withStyle(ChatFormatting.WHITE))
+                .append(Component.literal("Appeal:  ").withStyle(ChatFormatting.GRAY))
+                .append(Component.literal(appealInfo).withStyle(ChatFormatting.AQUA));
     }
 }
