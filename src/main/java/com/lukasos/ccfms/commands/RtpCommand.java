@@ -67,7 +67,6 @@ public class RtpCommand {
             return 0;
         }
 
-        CcfmsMod.backManager.record(player.getUUID(), CcfmsMod.currentLocation(player));
         CcfmsMod.teleport(player, world, safe.getX() + 0.5, safe.getY(), safe.getZ() + 0.5, player.getYRot(), player.getXRot());
         source.sendSuccess(() -> Component.literal(String.format("Teleported to %d, %d, %d.", safe.getX(), safe.getY(), safe.getZ())), false);
         return 1;
