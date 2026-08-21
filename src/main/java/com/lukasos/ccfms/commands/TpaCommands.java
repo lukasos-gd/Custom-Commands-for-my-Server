@@ -19,7 +19,11 @@ public class TpaCommands {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(literal("tpa")
                 .then(argument("target", EntityArgument.player())
-                        .executes(ctx -> sendRequest(ctx.getSource(), EntityArgument.getPlayer(ctx, "target")))));
+                        .executes(ctx -> sendRequest(ctx.getSource(), EntityArgument.getPlayer(ctx, "target"), TpaManager.RequestType.NORMAL))));
+
+        dispatcher.register(literal("tpahere")
+                .then(argument("target", EntityArgument.player())
+                        .executes(ctx -> sendRequest(ctx.getSource(), EntityArgument.getPlayer(ctx, "target"), TpaManager.RequestType.HERE))));
 
         dispatcher.register(literal("tpaccept")
                 .executes(ctx -> respond(ctx.getSource(), true)));
@@ -31,7 +35,7 @@ public class TpaCommands {
                 .executes(ctx -> cancel(ctx.getSource())));
     }
 
-    private static int sendRequest(CommandSourceStack source, ServerPlayer target) {
+    private static int sendRequest(CommandSourceStack source, ServerPlayer target, TpaManager.RequestType type) {
         ServerPlayer sender = source.getPlayer();
         if (sender == null) {
             source.sendFailure(Component.literal("Only players can use this command."));
@@ -42,8 +46,9 @@ public class TpaCommands {
             return 0;
         }
 
-        CcfmsMod.tpaManager.addRequest(sender.getUUID(), target.getUUID());
+        CcfmsMod.tpaManager.addRequest(sender.getUUID(), target.getUUID(), type);
 
+        String verb = type == TpaManager.RequestType.HERE ? "to teleport to them" : "to teleport to you";
         source.sendSuccess(() -> Component.literal("Teleport request sent to " + target.getName().getString() + "."), false);
 
         Component accept = Component.literal("[Accept]").withStyle(ChatFormatting.GREEN)
@@ -51,42 +56,46 @@ public class TpaCommands {
         Component deny = Component.literal("[Deny]").withStyle(ChatFormatting.RED)
                 .withStyle(s -> s.withClickEvent(new ClickEvent.RunCommand("/tpdeny")));
 
-        target.sendSystemMessage(Component.literal(sender.getName().getString() + " wants to teleport to you. ")
+        String verbForTarget = type == TpaManager.RequestType.HERE ? "wants you to teleport to them" : "wants to teleport to you";
+        target.sendSystemMessage(Component.literal(sender.getName().getString() + " " + verbForTarget + ". ")
                 .append(accept).append(Component.literal(" ")).append(deny));
 
         return 1;
     }
 
     private static int respond(CommandSourceStack source, boolean accept) {
-        ServerPlayer target = source.getPlayer();
-        if (target == null) return 0;
+        ServerPlayer responder = source.getPlayer();
+        if (responder == null) return 0;
 
-        TpaManager.Request req = CcfmsMod.tpaManager.getRequest(target.getUUID());
+        TpaManager.Request req = CcfmsMod.tpaManager.getRequest(responder.getUUID());
         if (req == null) {
             source.sendFailure(Component.literal("You have no pending teleport requests."));
             return 0;
         }
-        CcfmsMod.tpaManager.clear(target.getUUID());
+        CcfmsMod.tpaManager.clear(responder.getUUID());
 
         MinecraftServer server = source.getServer();
-        ServerPlayer sender = server.getPlayerList().getPlayer(req.from);
-        if (sender == null) {
+        ServerPlayer requester = server.getPlayerList().getPlayer(req.from);
+        if (requester == null) {
             source.sendFailure(Component.literal("That player is no longer online."));
             return 0;
         }
 
         if (!accept) {
-            sender.sendSystemMessage(Component.literal(target.getName().getString() + " denied your teleport request."));
+            requester.sendSystemMessage(Component.literal(responder.getName().getString() + " denied your teleport request."));
             source.sendSuccess(() -> Component.literal("Teleport request denied."), false);
             return 1;
         }
 
-        CcfmsMod.backManager.record(sender.getUUID(), CcfmsMod.currentLocation(sender));
-        ServerLevel destWorld = target.level();
-        CcfmsMod.teleport(sender, destWorld, target.getX(), target.getY(), target.getZ(), sender.getYRot(), sender.getXRot());
+        ServerPlayer mover = req.type == TpaManager.RequestType.HERE ? responder : requester;
+        ServerPlayer stationary = req.type == TpaManager.RequestType.HERE ? requester : responder;
 
-        sender.sendSystemMessage(Component.literal("Teleport request accepted."));
-        target.sendSystemMessage(Component.literal(sender.getName().getString() + " has teleported to you."));
+        CcfmsMod.backManager.record(mover.getUUID(), CcfmsMod.currentLocation(mover));
+        ServerLevel destWorld = stationary.level();
+        CcfmsMod.teleport(mover, destWorld, stationary.getX(), stationary.getY(), stationary.getZ(), mover.getYRot(), mover.getXRot());
+
+        requester.sendSystemMessage(Component.literal("Teleport request accepted."));
+        responder.sendSystemMessage(Component.literal("Teleport request accepted."));
         return 1;
     }
 
