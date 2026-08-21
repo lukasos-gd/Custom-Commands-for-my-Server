@@ -1,16 +1,22 @@
 package com.lukasos.ccfms;
 
 import com.lukasos.ccfms.commands.HomeCommands;
+import com.lukasos.ccfms.commands.ListCommand;
 import com.lukasos.ccfms.commands.MiscCommands;
+import com.lukasos.ccfms.commands.OffendCommand;
 import com.lukasos.ccfms.commands.RtpCommand;
 import com.lukasos.ccfms.commands.TpaCommands;
 import com.lukasos.ccfms.data.BackManager;
+import com.lukasos.ccfms.data.BanManager;
+import com.lukasos.ccfms.data.BanRecord;
 import com.lukasos.ccfms.data.HomeLocation;
 import com.lukasos.ccfms.data.HomeManager;
 import com.lukasos.ccfms.data.TpaManager;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -25,6 +31,7 @@ public class CcfmsMod implements ModInitializer {
     public static final String MOD_ID = "ccfms";
 
     public static HomeManager homeManager;
+    public static BanManager banManager;
     public static final TpaManager tpaManager = new TpaManager();
     public static final BackManager backManager = new BackManager();
     public static final Map<String, HomeLocation> spawnPoints = new HashMap<>();
@@ -33,6 +40,15 @@ public class CcfmsMod implements ModInitializer {
     public void onInitialize() {
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
             homeManager = new HomeManager(server);
+            banManager = new BanManager(server);
+        });
+
+        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
+            ServerPlayer player = handler.getPlayer();
+            BanRecord record = banManager.getBan(player.getUUID());
+            if (record != null) {
+                handler.disconnect(buildBanMessage(record, banManager.getAppealInfo()));
+            }
         });
 
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
@@ -40,6 +56,8 @@ public class CcfmsMod implements ModInitializer {
             RtpCommand.register(dispatcher);
             TpaCommands.register(dispatcher);
             MiscCommands.register(dispatcher);
+            ListCommand.register(dispatcher);
+            OffendCommand.register(dispatcher);
         });
     }
 
@@ -63,5 +81,14 @@ public class CcfmsMod implements ModInitializer {
             }
         }
         return null;
+    }
+
+    public static Component buildBanMessage(BanRecord record, String appealInfo) {
+        String expiry = com.lukasos.ccfms.commands.OffendCommand.formatExpiry(record.expiresAt);
+        String message = "You have been banned from this server.\n"
+                + "Reason: " + record.reason + "\n"
+                + "Duration: " + expiry + "\n"
+                + "Appeal: " + appealInfo;
+        return Component.literal(message);
     }
 }
