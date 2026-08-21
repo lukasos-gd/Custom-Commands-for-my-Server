@@ -41,10 +41,10 @@ public class OffendCommand {
                                         .executes(ctx -> setAppeal(ctx.getSource(),
                                                 StringArgumentType.getString(ctx, "text")))))));
 
-        dispatcher.register(literal("pardon")
+        dispatcher.register(literal("unoffend")
                 .requires(OffendCommand::isOp)
                 .then(argument("name", StringArgumentType.word())
-                        .executes(ctx -> pardon(ctx.getSource(), StringArgumentType.getString(ctx, "name")))));
+                        .executes(ctx -> unoffend(ctx.getSource(), StringArgumentType.getString(ctx, "name")))));
     }
 
     private static boolean isOp(CommandSourceStack src) {
@@ -77,10 +77,10 @@ public class OffendCommand {
         return 1;
     }
 
-    private static int pardon(CommandSourceStack source, String name) {
-        boolean removed = CcfmsMod.banManager.pardonByName(name);
+    private static int unoffend(CommandSourceStack source, String name) {
+        boolean removed = CcfmsMod.banManager.unoffendByName(name);
         if (removed) {
-            source.sendSuccess(() -> Component.literal(name + " has been pardoned."), true);
+            source.sendSuccess(() -> Component.literal(name + " has been unbanned."), true);
             return 1;
         }
         source.sendFailure(Component.literal("No ban found for '" + name + "'."));
@@ -121,4 +121,4 @@ public class OffendCommand {
         if (expiresAt == null) return "Permanent";
         return DISPLAY_FORMAT.format(Instant.ofEpochMilli(expiresAt));
     }
-                               }
+}
