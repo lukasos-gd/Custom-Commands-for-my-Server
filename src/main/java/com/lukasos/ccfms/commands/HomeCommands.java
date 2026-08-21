@@ -50,7 +50,6 @@ public class HomeCommands {
             source.sendFailure(Component.literal("That home's dimension no longer exists."));
             return 0;
         }
-        CcfmsMod.backManager.record(player.getUUID(), CcfmsMod.currentLocation(player));
         CcfmsMod.teleport(player, world, home.x, home.y, home.z, home.yaw, home.pitch);
         source.sendSuccess(() -> Component.literal("Teleported to home '" + name + "'."), false);
         return 1;
