@@ -9,4 +9,4 @@ pluginManagement {
     }
 }
 
-rootProject.name = "ccfms-mod"
+rootProject.name = "ccfms"
