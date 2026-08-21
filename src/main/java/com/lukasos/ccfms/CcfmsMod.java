@@ -14,7 +14,7 @@ import com.lukasos.ccfms.data.HomeManager;
 import com.lukasos.ccfms.data.TpaManager;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -31,23 +31,33 @@ import java.util.Set;
 public class CcfmsMod implements ModInitializer {
     public static final String MOD_ID = "ccfms";
 
-    public static HomeManager homeManager;
+    private static final int BACK_SNAPSHOT_INTERVAL_TICKS = 400;
+
+    public static final HomeManager homeManager = new HomeManager();
     public static final BanManager banManager = new BanManager();
     public static final TpaManager tpaManager = new TpaManager();
     public static final BackManager backManager = new BackManager();
     public static final Map<String, HomeLocation> spawnPoints = new HashMap<>();
 
+    private int tickCounter = 0;
+
     @Override
     public void onInitialize() {
-        ServerLifecycleEvents.SERVER_STARTED.register(server -> {
-            homeManager = new HomeManager(server);
-        });
-
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             ServerPlayer player = handler.getPlayer();
             BanRecord record = banManager.getBan(player.getUUID());
             if (record != null) {
                 handler.disconnect(buildBanMessage(record, banManager.getAppealInfo()));
+            }
+        });
+
+        ServerTickEvents.END_SERVER_TICK.register(server -> {
+            tickCounter++;
+            if (tickCounter >= BACK_SNAPSHOT_INTERVAL_TICKS) {
+                tickCounter = 0;
+                for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+                    backManager.record(player.getUUID(), currentLocation(player));
+                }
             }
         });
 
