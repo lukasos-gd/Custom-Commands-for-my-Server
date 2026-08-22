@@ -3,8 +3,9 @@ package com.lukasos.ccfms.data;
 public class BanRecord {
     public String targetName;
     public String reason;
-    public long expiresAt;
-    public String durationLabel;
+    public Long expiresAt;
+    public durationLabel;
+    public boolean canAppeal;
     public String bannedBy;
     public long timestamp;
 }
