@@ -3,7 +3,6 @@ package com.lukasos.ccfms.commands;
 import com.lukasos.ccfms.CcfmsMod;
 import com.lukasos.ccfms.data.BanRecord;
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import net.minecraft.commands.CommandSourceStack;
@@ -31,23 +30,30 @@ public class OffendCommand {
         return builder.buildFuture();
     };
 
+    private static final SuggestionProvider<CommandSourceStack> APPEAL_SUGGESTIONS = (ctx, builder) -> {
+        builder.suggest("appealable");
+        builder.suggest("not-appealable");
+        return builder.buildFuture();
+    };
+
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(literal("offend")
                 .requires(OffendCommand::isOp)
                 .then(argument("player", EntityArgument.player())
                         .then(argument("duration", StringArgumentType.word())
                                 .suggests(DURATION_SUGGESTIONS)
-                                .then(argument("can-appeal", BoolArgumentType.bool())
+                                .then(argument("can-appeal", StringArgumentType.word())
+                                        .suggests(APPEAL_SUGGESTIONS)
                                         .executes(ctx -> offend(ctx.getSource(),
                                                 EntityArgument.getPlayer(ctx, "player"),
                                                 StringArgumentType.getString(ctx, "duration"),
-                                                BoolArgumentType.getBool(ctx, "can-appeal"),
+                                                StringArgumentType.getString(ctx, "can-appeal"),
                                                 "No reason provided."))
                                         .then(argument("reason", StringArgumentType.greedyString())
                                                 .executes(ctx -> offend(ctx.getSource(),
                                                         EntityArgument.getPlayer(ctx, "player"),
                                                         StringArgumentType.getString(ctx, "duration"),
-                                                        BoolArgumentType.getBool(ctx, "can-appeal"),
+                                                        StringArgumentType.getString(ctx, "can-appeal"),
                                                         StringArgumentType.getString(ctx, "reason")))))))
                 .then(literal("config")
                         .then(literal("appeal")
@@ -66,7 +72,13 @@ public class OffendCommand {
         return player == null || src.getServer().getPlayerList().isOp(player.nameAndId());
     }
 
-    private static int offend(CommandSourceStack source, ServerPlayer target, String durationInput, boolean canAppeal, String reason) {
+    private static int offend(CommandSourceStack source, ServerPlayer target, String durationInput, String canAppealInput, String reason) {
+        Boolean canAppeal = parseCanAppeal(canAppealInput);
+        if (canAppeal == null) {
+            source.sendFailure(Component.literal("Invalid value for can-appeal. Use 'appealable' or 'not-appealable' (true/false also work)."));
+            return 0;
+        }
+
         boolean permanent = durationInput.equalsIgnoreCase("permanent");
         Long expiresAt = null;
         if (!permanent) {
@@ -92,9 +104,18 @@ public class OffendCommand {
 
         CcfmsMod.banManager.ban(target.getUUID(), record);
 
-        source.sendSuccess(() -> Component.literal(target.getName().getString() + " has been banned. Reason: " + reason), true);
+        source.sendSuccess(() -> Component.literal(target.getName().getString() + " has been banned. Reason: " + reason
+                + " (" + (canAppeal ? "appealable" : "not appealable") + ")"), true);
         target.connection.disconnect(CcfmsMod.buildBanMessage(record, CcfmsMod.banManager.getAppealInfo()));
         return 1;
+    }
+
+    private static Boolean parseCanAppeal(String input) {
+        return switch (input.toLowerCase()) {
+            case "appealable", "true", "yes" -> Boolean.TRUE;
+            case "not-appealable", "false", "no" -> Boolean.FALSE;
+            default -> null;
+        };
     }
 
     private static int unoffend(CommandSourceStack source, String name) {
@@ -153,4 +174,4 @@ public class OffendCommand {
     public static String formatExpiryOrPermanent(Long expiresAt) {
         return expiresAt == null ? "Permanent" : formatDate(expiresAt);
     }
-}
+        }
