@@ -13,6 +13,7 @@ import com.lukasos.ccfms.data.BanRecord;
 import com.lukasos.ccfms.data.HomeLocation;
 import com.lukasos.ccfms.data.HomeManager;
 import com.lukasos.ccfms.data.PlayerRegistry;
+import com.lukasos.ccfms.data.SpawnManager;
 import com.lukasos.ccfms.data.TpaManager;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -26,8 +27,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Relative;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 public class CcfmsMod implements ModInitializer {
@@ -40,7 +39,7 @@ public class CcfmsMod implements ModInitializer {
     public static final PlayerRegistry playerRegistry = new PlayerRegistry();
     public static final TpaManager tpaManager = new TpaManager();
     public static final BackManager backManager = new BackManager();
-    public static final Map<String, HomeLocation> spawnPoints = new HashMap<>();
+    public static final SpawnManager spawnManager = new SpawnManager();
 
     private int tickCounter = 0;
 
