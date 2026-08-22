@@ -62,7 +62,7 @@ public class PlayerInfoCommand {
         BanRecord activeBan = CcfmsMod.banManager.getBan(uuid);
         List<BanRecord> history = CcfmsMod.banManager.getHistory(uuid);
 
-        MutableComponent msg = Component.literal("--- Player Info: " + resolvedName + " ---\n").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD);
+        MutableComponent msg = Component.literal("--- Player Info: " + resolvedName + " ---\n").withStyle(ChatFormatting.GOLD);
 
         msg.append(line("UUID", uuid.toString()));
         msg.append(line("Status", online != null ? "Online" : "Offline"));
@@ -74,7 +74,7 @@ public class PlayerInfoCommand {
 
         if (activeBan != null) {
             msg.append(Component.literal("Current ban: ").withStyle(ChatFormatting.GRAY))
-                    .append(Component.literal("ACTIVE\n").withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
+                    .append(Component.literal("ACTIVE\n").withStyle(ChatFormatting.RED));
             msg.append(line("  Reason", activeBan.reason));
             msg.append(line("  Expires", OffendCommand.formatExpiry(activeBan.expiresAt)));
             msg.append(line("  Banned by", activeBan.bannedBy));
@@ -106,4 +106,4 @@ public class PlayerInfoCommand {
         return Component.literal(label + ": ").withStyle(ChatFormatting.GRAY)
                 .append(Component.literal(value + "\n").withStyle(ChatFormatting.WHITE));
     }
-                                          }
+}
