@@ -99,13 +99,26 @@ public class CcfmsMod implements ModInitializer {
     }
 
     public static Component buildBanMessage(BanRecord record, String appealInfo) {
-        String expiry = com.lukasos.ccfms.commands.OffendCommand.formatExpiry(record.expiresAt);
-        return Component.literal("You are banned from this server\n\n").withStyle(ChatFormatting.RED)
-                .append(Component.literal("Reason:  ").withStyle(ChatFormatting.GRAY))
-                .append(Component.literal(record.reason + "\n").withStyle(ChatFormatting.WHITE))
-                .append(Component.literal("Duration: ").withStyle(ChatFormatting.GRAY))
-                .append(Component.literal(expiry + "\n").withStyle(ChatFormatting.WHITE))
-                .append(Component.literal("Appeal:  ").withStyle(ChatFormatting.GRAY))
-                .append(Component.literal(appealInfo).withStyle(ChatFormatting.AQUA));
+        net.minecraft.network.chat.MutableComponent msg =
+                Component.literal("You are BANNED from this server\n").withStyle(ChatFormatting.RED)
+                        .append(Component.literal("Reason: " + record.reason + "\n").withStyle(ChatFormatting.GOLD))
+                        .append(Component.literal("Ban duration: " + record.durationLabel + "\n").withStyle(ChatFormatting.GOLD));
+
+        if (record.expiresAt == null) {
+            msg.append(Component.literal("You may ").withStyle(ChatFormatting.GREEN))
+                    .append(Component.literal("NEVER").withStyle(ChatFormatting.RED))
+                    .append(Component.literal(" return on this server\n").withStyle(ChatFormatting.GREEN));
+        } else {
+            String date = com.lukasos.ccfms.commands.OffendCommand.formatDate(record.expiresAt);
+            msg.append(Component.literal("You may return on: " + date + "\n").withStyle(ChatFormatting.GREEN));
+        }
+
+        if (record.canAppeal) {
+            msg.append(Component.literal("You may appeal your ban at: " + appealInfo).withStyle(ChatFormatting.AQUA));
+        } else {
+            msg.append(Component.literal("This ban cannot be appealed.").withStyle(ChatFormatting.AQUA));
+        }
+
+        return msg;
     }
 }
