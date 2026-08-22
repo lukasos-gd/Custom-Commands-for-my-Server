@@ -76,7 +76,8 @@ public class PlayerInfoCommand {
             msg.append(Component.literal("Current ban: ").withStyle(ChatFormatting.GRAY))
                     .append(Component.literal("ACTIVE\n").withStyle(ChatFormatting.RED));
             msg.append(line("  Reason", activeBan.reason));
-            msg.append(line("  Expires", OffendCommand.formatExpiry(activeBan.expiresAt)));
+            msg.append(line("  Expires", OffendCommand.formatExpiryOrPermanent(activeBan.expiresAt)));
+            msg.append(line("  Can appeal", activeBan.canAppeal ? "Yes" : "No"));
             msg.append(line("  Banned by", activeBan.bannedBy));
         } else {
             msg.append(line("Current ban", "None"));
