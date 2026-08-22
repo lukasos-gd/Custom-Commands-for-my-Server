@@ -100,7 +100,7 @@ public class CcfmsMod implements ModInitializer {
 
     public static Component buildBanMessage(BanRecord record, String appealInfo) {
         String expiry = com.lukasos.ccfms.commands.OffendCommand.formatExpiry(record.expiresAt);
-        return Component.literal("You are banned from this server\n\n").withStyle(ChatFormatting.RED, ChatFormatting.BOLD)
+        return Component.literal("You are banned from this server\n\n").withStyle(ChatFormatting.RED)
                 .append(Component.literal("Reason:  ").withStyle(ChatFormatting.GRAY))
                 .append(Component.literal(record.reason + "\n").withStyle(ChatFormatting.WHITE))
                 .append(Component.literal("Duration: ").withStyle(ChatFormatting.GRAY))
