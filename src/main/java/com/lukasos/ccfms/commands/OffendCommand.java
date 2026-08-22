@@ -3,6 +3,7 @@ package com.lukasos.ccfms.commands;
 import com.lukasos.ccfms.CcfmsMod;
 import com.lukasos.ccfms.data.BanRecord;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import net.minecraft.commands.CommandSourceStack;
@@ -19,10 +20,6 @@ import static net.minecraft.commands.Commands.literal;
 
 public class OffendCommand {
     private static final long INVALID_DURATION = -1L;
-    private static final long DAY_MS = 86_400_000L;
-    private static final long PERMANENT_DAYS = 99_999L;
-    private static final long PERMANENT_MS = PERMANENT_DAYS * DAY_MS;
-    private static final long PERMANENT_DISPLAY_THRESHOLD_MS = 90_000L * DAY_MS;
 
     private static final DateTimeFormatter DISPLAY_FORMAT =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").withZone(ZoneId.systemDefault());
@@ -40,15 +37,18 @@ public class OffendCommand {
                 .then(argument("player", EntityArgument.player())
                         .then(argument("duration", StringArgumentType.word())
                                 .suggests(DURATION_SUGGESTIONS)
-                                .executes(ctx -> offend(ctx.getSource(),
-                                        EntityArgument.getPlayer(ctx, "player"),
-                                        StringArgumentType.getString(ctx, "duration"),
-                                        "No reason provided."))
-                                .then(argument("reason", StringArgumentType.greedyString())
+                                .then(argument("can-appeal", BoolArgumentType.bool())
                                         .executes(ctx -> offend(ctx.getSource(),
                                                 EntityArgument.getPlayer(ctx, "player"),
                                                 StringArgumentType.getString(ctx, "duration"),
-                                                StringArgumentType.getString(ctx, "reason"))))))
+                                                BoolArgumentType.getBool(ctx, "can-appeal"),
+                                                "No reason provided."))
+                                        .then(argument("reason", StringArgumentType.greedyString())
+                                                .executes(ctx -> offend(ctx.getSource(),
+                                                        EntityArgument.getPlayer(ctx, "player"),
+                                                        StringArgumentType.getString(ctx, "duration"),
+                                                        BoolArgumentType.getBool(ctx, "can-appeal"),
+                                                        StringArgumentType.getString(ctx, "reason")))))))
                 .then(literal("config")
                         .then(literal("appeal")
                                 .then(argument("text", StringArgumentType.greedyString())
@@ -66,14 +66,17 @@ public class OffendCommand {
         return player == null || src.getServer().getPlayerList().isOp(player.nameAndId());
     }
 
-    private static int offend(CommandSourceStack source, ServerPlayer target, String durationInput, String reason) {
-        long durationMs = parseDuration(durationInput);
-        if (durationMs == INVALID_DURATION) {
-            source.sendFailure(Component.literal("Invalid duration. Use 1h, 1d, 7d, 1m, 1y, 5y, Permanent, or a custom value like 30m/12h/3d/2w."));
-            return 0;
+    private static int offend(CommandSourceStack source, ServerPlayer target, String durationInput, boolean canAppeal, String reason) {
+        boolean permanent = durationInput.equalsIgnoreCase("permanent");
+        Long expiresAt = null;
+        if (!permanent) {
+            long durationMs = parseDuration(durationInput);
+            if (durationMs == INVALID_DURATION) {
+                source.sendFailure(Component.literal("Invalid duration. Use 1h, 1d, 7d, 1m, 1y, 5y, Permanent, or a custom value like 30m/12h/3d/2w."));
+                return 0;
+            }
+            expiresAt = System.currentTimeMillis() + durationMs;
         }
-        long now = System.currentTimeMillis();
-        long expiresAt = now + durationMs;
 
         ServerPlayer executor = source.getPlayer();
         String bannedBy = executor != null ? executor.getName().getString() : "Console";
@@ -82,9 +85,10 @@ public class OffendCommand {
         record.targetName = target.getName().getString();
         record.reason = reason;
         record.expiresAt = expiresAt;
-        record.durationLabel = formatExpiry(expiresAt, now);
+        record.durationLabel = permanent ? "Permanent" : durationInput;
+        record.canAppeal = canAppeal;
         record.bannedBy = bannedBy;
-        record.timestamp = now;
+        record.timestamp = System.currentTimeMillis();
 
         CcfmsMod.banManager.ban(target.getUUID(), record);
 
@@ -111,13 +115,12 @@ public class OffendCommand {
 
     private static long parseDuration(String input) {
         switch (input.toLowerCase()) {
-            case "1h": return 1 * 3_600_000L;
-            case "1d": return 1 * DAY_MS;
-            case "7d": return 7 * DAY_MS;
-            case "1m": return 30 * DAY_MS;
-            case "1y": return 365 * DAY_MS;
-            case "5y": return 5 * 365 * DAY_MS;
-            case "permanent": return PERMANENT_MS;
+            case "1h": return 3_600_000L;
+            case "1d": return 86_400_000L;
+            case "7d": return 7 * 86_400_000L;
+            case "1m": return 30 * 86_400_000L;
+            case "1y": return 365 * 86_400_000L;
+            case "5y": return 5 * 365 * 86_400_000L;
             default: return parseCustomDuration(input);
         }
     }
@@ -129,8 +132,8 @@ public class OffendCommand {
             case 's' -> 1000L;
             case 'm' -> 60_000L;
             case 'h' -> 3_600_000L;
-            case 'd' -> DAY_MS;
-            case 'w' -> 7 * DAY_MS;
+            case 'd' -> 86_400_000L;
+            case 'w' -> 7 * 86_400_000L;
             default -> -1L;
         };
         if (multiplier < 0) return INVALID_DURATION;
@@ -143,14 +146,11 @@ public class OffendCommand {
         }
     }
 
-    public static String formatExpiry(long expiresAt) {
-        return formatExpiry(expiresAt, System.currentTimeMillis());
+    public static String formatDate(long epochMilli) {
+        return DISPLAY_FORMAT.format(Instant.ofEpochMilli(epochMilli));
     }
 
-    private static String formatExpiry(long expiresAt, long referenceNow) {
-        if (expiresAt - referenceNow >= PERMANENT_DISPLAY_THRESHOLD_MS) {
-            return "Permanent";
-        }
-        return DISPLAY_FORMAT.format(Instant.ofEpochMilli(expiresAt));
+    public static String formatExpiryOrPermanent(Long expiresAt) {
+        return expiresAt == null ? "Permanent" : formatDate(expiresAt);
     }
 }
