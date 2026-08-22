@@ -11,8 +11,6 @@ import net.minecraft.server.level.ServerPlayer;
 import static net.minecraft.commands.Commands.literal;
 
 public class MiscCommands {
-    private static final String SPAWN_KEY = "global";
-
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(literal("back")
                 .executes(ctx -> back(ctx.getSource())));
@@ -21,10 +19,6 @@ public class MiscCommands {
                 .executes(ctx -> goSpawn(ctx.getSource())));
 
         dispatcher.register(literal("setspawn")
-                .requires(src -> {
-                    ServerPlayer player = src.getPlayer();
-                    return player == null || src.getServer().getPlayerList().isOp(player.nameAndId());
-                })
                 .executes(ctx -> setSpawn(ctx.getSource())));
     }
 
@@ -49,23 +43,23 @@ public class MiscCommands {
     private static int goSpawn(CommandSourceStack source) {
         ServerPlayer player = source.getPlayer();
         if (player == null) return 0;
-        HomeLocation spawn = CcfmsMod.spawnPoints.get(SPAWN_KEY);
+        HomeLocation spawn = CcfmsMod.spawnManager.get(player.getUUID());
         if (spawn == null) {
-            source.sendFailure(Component.literal("No spawn point has been set yet. Ask an admin to run /setspawn."));
+            source.sendFailure(Component.literal("You haven't set a custom spawn point yet. Use /setspawn first."));
             return 0;
         }
         ServerLevel world = CcfmsMod.worldFromDimensionId(source.getServer(), spawn.dimension);
         if (world == null) return 0;
         CcfmsMod.teleport(player, world, spawn.x, spawn.y, spawn.z, spawn.yaw, spawn.pitch);
-        source.sendSuccess(() -> Component.literal("Teleported to spawn."), false);
+        source.sendSuccess(() -> Component.literal("Teleported to your spawn point."), false);
         return 1;
     }
 
     private static int setSpawn(CommandSourceStack source) {
         ServerPlayer player = source.getPlayer();
         if (player == null) return 0;
-        CcfmsMod.spawnPoints.put(SPAWN_KEY, CcfmsMod.currentLocation(player));
-        source.sendSuccess(() -> Component.literal("Spawn point set to your current location."), true);
+        CcfmsMod.spawnManager.set(player.getUUID(), CcfmsMod.currentLocation(player));
+        source.sendSuccess(() -> Component.literal("Your spawn point has been set to your current location."), false);
         return 1;
     }
 }
