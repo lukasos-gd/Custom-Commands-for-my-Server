@@ -91,7 +91,7 @@ public class BanManager {
     public BanRecord getBan(UUID player) {
         BanRecord record = active.bans.get(player.toString());
         if (record == null) return null;
-        if (System.currentTimeMillis() > record.expiresAt) {
+        if (record.expiresAt != null && System.currentTimeMillis() > record.expiresAt) {
             active.bans.remove(player.toString());
             saveActive();
             return null;
