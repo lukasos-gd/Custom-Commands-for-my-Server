@@ -117,11 +117,47 @@ public class CcfmsMod implements ModInitializer {
 
         if (record.canAppeal) {
             msg.append(Component.literal("You may appeal your ban at: ").withStyle(ChatFormatting.WHITE))
-                    .append(Component.literal(appealInfo).withStyle(ChatFormatting.AQUA));
+                    .append(buildAppealComponent(appealInfo));
         } else {
             msg.append(Component.literal("This ban cannot be appealed.").withStyle(ChatFormatting.WHITE));
         }
 
         return msg;
+    }
+
+    private static final java.util.regex.Pattern URL_PATTERN = java.util.regex.Pattern.compile(
+            "((?:https?://)?[\\w-]+(?:\\.[\\w-]+)+(?:/[\\w\\-./?%&=#]*)?)", java.util.regex.Pattern.CASE_INSENSITIVE);
+
+    private static Component buildAppealComponent(String appealInfo) {
+        java.util.regex.Matcher matcher = URL_PATTERN.matcher(appealInfo);
+        if (!matcher.find()) {
+            return Component.literal(appealInfo).withStyle(ChatFormatting.AQUA);
+        }
+
+        String before = appealInfo.substring(0, matcher.start());
+        String urlText = matcher.group(1);
+        String after = appealInfo.substring(matcher.end());
+
+        String target = urlText.toLowerCase().startsWith("http://") || urlText.toLowerCase().startsWith("https://")
+                ? urlText
+                : "https://" + urlText;
+
+        net.minecraft.network.chat.MutableComponent result = Component.literal("").withStyle(ChatFormatting.AQUA);
+        if (!before.isEmpty()) {
+            result.append(Component.literal(before).withStyle(ChatFormatting.AQUA));
+        }
+        try {
+            java.net.URI uri = new java.net.URI(target);
+            result.append(Component.literal(urlText)
+                    .withStyle(s -> s.withColor(ChatFormatting.AQUA)
+                            .withUnderlined(true)
+                            .withClickEvent(new net.minecraft.network.chat.ClickEvent.OpenUrl(uri))));
+        } catch (java.net.URISyntaxException e) {
+            result.append(Component.literal(urlText).withStyle(ChatFormatting.AQUA));
+        }
+        if (!after.isEmpty()) {
+            result.append(Component.literal(after).withStyle(ChatFormatting.AQUA));
+        }
+        return result;
     }
 }
