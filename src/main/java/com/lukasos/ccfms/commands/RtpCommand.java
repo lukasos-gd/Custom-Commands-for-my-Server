@@ -21,9 +21,12 @@ import static net.minecraft.commands.Commands.literal;
 public class RtpCommand {
     private static final Random RANDOM = new Random();
 
-    private static final int OVERWORLD_RADIUS = 5000;
-    private static final int NETHER_RADIUS = 1000;
-    private static final int END_RADIUS = 2000;
+    private static final int OVERWORLD_MIN_RADIUS = 2000;
+    private static final int OVERWORLD_MAX_RADIUS = 20000;
+    private static final int NETHER_MIN_RADIUS = 500;
+    private static final int NETHER_MAX_RADIUS = 4000;
+    private static final int END_MIN_RADIUS = 1000;
+    private static final int END_MAX_RADIUS = 10000;
     private static final int MAX_ATTEMPTS = 30;
 
     private static final SuggestionProvider<CommandSourceStack> DIMENSION_SUGGESTIONS = (ctx, builder) -> {
@@ -60,8 +63,9 @@ public class RtpCommand {
             return 0;
         }
 
-        int radius = radiusFor(dimKey);
-        BlockPos safe = findSafeLocation(world, radius);
+        int minRadius = minRadiusFor(dimKey);
+        int maxRadius = maxRadiusFor(dimKey);
+        BlockPos safe = findSafeLocation(world, minRadius, maxRadius);
         if (safe == null) {
             source.sendFailure(Component.literal("Couldn't find a safe spot, try again."));
             return 0;
@@ -84,16 +88,24 @@ public class RtpCommand {
         };
     }
 
-    private static int radiusFor(ResourceKey<Level> dim) {
-        if (dim.equals(Level.NETHER)) return NETHER_RADIUS;
-        if (dim.equals(Level.END)) return END_RADIUS;
-        return OVERWORLD_RADIUS;
+    private static int minRadiusFor(ResourceKey<Level> dim) {
+        if (dim.equals(Level.NETHER)) return NETHER_MIN_RADIUS;
+        if (dim.equals(Level.END)) return END_MIN_RADIUS;
+        return OVERWORLD_MIN_RADIUS;
     }
 
-    private static BlockPos findSafeLocation(ServerLevel world, int radius) {
+    private static int maxRadiusFor(ResourceKey<Level> dim) {
+        if (dim.equals(Level.NETHER)) return NETHER_MAX_RADIUS;
+        if (dim.equals(Level.END)) return END_MAX_RADIUS;
+        return OVERWORLD_MAX_RADIUS;
+    }
+
+    private static BlockPos findSafeLocation(ServerLevel world, int minRadius, int maxRadius) {
         for (int i = 0; i < MAX_ATTEMPTS; i++) {
-            int x = RANDOM.nextInt(radius * 2) - radius;
-            int z = RANDOM.nextInt(radius * 2) - radius;
+            double angle = RANDOM.nextDouble() * 2 * Math.PI;
+            double distance = minRadius + RANDOM.nextDouble() * (maxRadius - minRadius);
+            int x = (int) (Math.cos(angle) * distance);
+            int z = (int) (Math.sin(angle) * distance);
 
             world.getChunk(x >> 4, z >> 4);
 
