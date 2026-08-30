@@ -12,13 +12,13 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 public class SellMenu extends AbstractContainerMenu {
-    private final SimpleContainer sellContainer = new SimpleContainer(9);
+    private final SellContainer sellContainer;
     private boolean processing = false;
 
     public SellMenu(int containerId, Inventory playerInventory, ServerPlayer sellingPlayer) {
         super(MenuType.GENERIC_9x1, containerId);
 
-        sellContainer.addListener(c -> onContainerChanged(sellingPlayer));
+        this.sellContainer = new SellContainer(9, () -> onContainerChanged(sellingPlayer));
 
         for (int col = 0; col < 9; col++) {
             addSlot(new Slot(sellContainer, col, 8 + col * 18, 18));
@@ -46,7 +46,7 @@ public class SellMenu extends AbstractContainerMenu {
                 double total = unitPrice * stack.getCount();
                 CcfmsMod.economyManager.addBalance(player.getUUID(), total);
                 player.sendSystemMessage(Component.literal(String.format("Sold %dx %s for $%.2f",
-                        stack.getCount(), stack.getItem().getDescription().getString(), total)));
+                        stack.getCount(), stack.getHoverName().getString(), total)));
                 sellContainer.setItem(i, ItemStack.EMPTY);
             }
         } finally {
@@ -80,5 +80,20 @@ public class SellMenu extends AbstractContainerMenu {
     @Override
     public boolean stillValid(Player player) {
         return true;
+    }
+
+    private static class SellContainer extends SimpleContainer {
+        private final Runnable onChange;
+
+        SellContainer(int size, Runnable onChange) {
+            super(size);
+            this.onChange = onChange;
+        }
+
+        @Override
+        public void setChanged() {
+            super.setChanged();
+            onChange.run();
+        }
     }
 }
