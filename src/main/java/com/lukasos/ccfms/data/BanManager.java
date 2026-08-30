@@ -88,6 +88,10 @@ public class BanManager {
         return true;
     }
 
+    public java.util.List<String> activeBanNames() {
+        return active.bans.values().stream().map(r -> r.targetName).toList();
+    }
+
     public BanRecord getBan(UUID player) {
         BanRecord record = active.bans.get(player.toString());
         if (record == null) return null;
