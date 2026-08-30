@@ -3,7 +3,7 @@
   "id": "ccfms",
   "version": "${version}",
   "name": "Custom Commands for my Server",
-  "description": "Home, RTP, TPA, spawn, back, list, and moderation commands.",
+  "description": "Home, RTP, TPA, spawn, back, list, moderation and economy commands.",
   "authors": [
     "lukasos-gd"
   ],
