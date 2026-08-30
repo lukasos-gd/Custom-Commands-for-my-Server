@@ -1,15 +1,23 @@
 package com.lukasos.ccfms;
 
+import com.lukasos.ccfms.commands.BalCommand;
+import com.lukasos.ccfms.commands.BaltopCommand;
+import com.lukasos.ccfms.commands.EconomyAdminCommands;
 import com.lukasos.ccfms.commands.HomeCommands;
 import com.lukasos.ccfms.commands.ListCommand;
 import com.lukasos.ccfms.commands.MiscCommands;
 import com.lukasos.ccfms.commands.OffendCommand;
 import com.lukasos.ccfms.commands.PlayerInfoCommand;
 import com.lukasos.ccfms.commands.RtpCommand;
+import com.lukasos.ccfms.commands.SellCommand;
+import com.lukasos.ccfms.commands.ShopCommand;
 import com.lukasos.ccfms.commands.TpaCommands;
 import com.lukasos.ccfms.data.BackManager;
 import com.lukasos.ccfms.data.BanManager;
 import com.lukasos.ccfms.data.BanRecord;
+import com.lukasos.ccfms.data.EconomyConfigManager;
+import com.lukasos.ccfms.data.EconomyManager;
+import com.lukasos.ccfms.data.EconomyScoreboard;
 import com.lukasos.ccfms.data.HomeLocation;
 import com.lukasos.ccfms.data.HomeManager;
 import com.lukasos.ccfms.data.PlayerRegistry;
@@ -33,6 +41,7 @@ public class CcfmsMod implements ModInitializer {
     public static final String MOD_ID = "ccfms";
 
     private static final int BACK_SNAPSHOT_INTERVAL_TICKS = 400;
+    private static final int SCOREBOARD_UPDATE_INTERVAL_TICKS = 20;
 
     public static final HomeManager homeManager = new HomeManager();
     public static final BanManager banManager = new BanManager();
@@ -40,8 +49,11 @@ public class CcfmsMod implements ModInitializer {
     public static final TpaManager tpaManager = new TpaManager();
     public static final BackManager backManager = new BackManager();
     public static final SpawnManager spawnManager = new SpawnManager();
+    public static final EconomyManager economyManager = new EconomyManager();
+    public static final EconomyConfigManager economyConfigManager = new EconomyConfigManager();
 
-    private int tickCounter = 0;
+    private int backTickCounter = 0;
+    private int scoreboardTickCounter = 0;
 
     @Override
     public void onInitialize() {
@@ -55,12 +67,18 @@ public class CcfmsMod implements ModInitializer {
         });
 
         ServerTickEvents.END_SERVER_TICK.register(server -> {
-            tickCounter++;
-            if (tickCounter >= BACK_SNAPSHOT_INTERVAL_TICKS) {
-                tickCounter = 0;
+            backTickCounter++;
+            if (backTickCounter >= BACK_SNAPSHOT_INTERVAL_TICKS) {
+                backTickCounter = 0;
                 for (ServerPlayer player : server.getPlayerList().getPlayers()) {
                     backManager.record(player.getUUID(), currentLocation(player));
                 }
+            }
+
+            scoreboardTickCounter++;
+            if (scoreboardTickCounter >= SCOREBOARD_UPDATE_INTERVAL_TICKS) {
+                scoreboardTickCounter = 0;
+                EconomyScoreboard.update(server);
             }
         });
 
@@ -72,6 +90,11 @@ public class CcfmsMod implements ModInitializer {
             ListCommand.register(dispatcher);
             OffendCommand.register(dispatcher);
             PlayerInfoCommand.register(dispatcher);
+            BalCommand.register(dispatcher);
+            BaltopCommand.register(dispatcher);
+            EconomyAdminCommands.register(dispatcher);
+            ShopCommand.register(dispatcher);
+            SellCommand.register(dispatcher);
         });
     }
 
@@ -117,47 +140,11 @@ public class CcfmsMod implements ModInitializer {
 
         if (record.canAppeal) {
             msg.append(Component.literal("You may appeal your ban at: ").withStyle(ChatFormatting.WHITE))
-                    .append(buildAppealComponent(appealInfo));
+                    .append(Component.literal(appealInfo).withStyle(ChatFormatting.AQUA));
         } else {
             msg.append(Component.literal("This ban cannot be appealed.").withStyle(ChatFormatting.WHITE));
         }
 
         return msg;
-    }
-
-    private static final java.util.regex.Pattern URL_PATTERN = java.util.regex.Pattern.compile(
-            "((?:https?://)?[\\w-]+(?:\\.[\\w-]+)+(?:/[\\w\\-./?%&=#]*)?)", java.util.regex.Pattern.CASE_INSENSITIVE);
-
-    private static Component buildAppealComponent(String appealInfo) {
-        java.util.regex.Matcher matcher = URL_PATTERN.matcher(appealInfo);
-        if (!matcher.find()) {
-            return Component.literal(appealInfo).withStyle(ChatFormatting.AQUA);
-        }
-
-        String before = appealInfo.substring(0, matcher.start());
-        String urlText = matcher.group(1);
-        String after = appealInfo.substring(matcher.end());
-
-        String target = urlText.toLowerCase().startsWith("http://") || urlText.toLowerCase().startsWith("https://")
-                ? urlText
-                : "https://" + urlText;
-
-        net.minecraft.network.chat.MutableComponent result = Component.literal("").withStyle(ChatFormatting.AQUA);
-        if (!before.isEmpty()) {
-            result.append(Component.literal(before).withStyle(ChatFormatting.AQUA));
-        }
-        try {
-            java.net.URI uri = new java.net.URI(target);
-            result.append(Component.literal(urlText)
-                    .withStyle(s -> s.withColor(ChatFormatting.AQUA)
-                            .withUnderlined(true)
-                            .withClickEvent(new net.minecraft.network.chat.ClickEvent.OpenUrl(uri))));
-        } catch (java.net.URISyntaxException e) {
-            result.append(Component.literal(urlText).withStyle(ChatFormatting.AQUA));
-        }
-        if (!after.isEmpty()) {
-            result.append(Component.literal(after).withStyle(ChatFormatting.AQUA));
-        }
-        return result;
     }
 }
