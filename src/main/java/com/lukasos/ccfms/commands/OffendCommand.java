@@ -36,6 +36,13 @@ public class OffendCommand {
         return builder.buildFuture();
     };
 
+    private static final SuggestionProvider<CommandSourceStack> BANNED_PLAYER_SUGGESTIONS = (ctx, builder) -> {
+        for (String name : CcfmsMod.banManager.activeBanNames()) {
+            builder.suggest(name);
+        }
+        return builder.buildFuture();
+    };
+
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(literal("offend")
                 .requires(OffendCommand::isOp)
@@ -64,6 +71,7 @@ public class OffendCommand {
         dispatcher.register(literal("unoffend")
                 .requires(OffendCommand::isOp)
                 .then(argument("name", StringArgumentType.word())
+                        .suggests(BANNED_PLAYER_SUGGESTIONS)
                         .executes(ctx -> unoffend(ctx.getSource(), StringArgumentType.getString(ctx, "name")))));
     }
 
@@ -174,4 +182,4 @@ public class OffendCommand {
     public static String formatExpiryOrPermanent(Long expiresAt) {
         return expiresAt == null ? "Permanent" : formatDate(expiresAt);
     }
-        }
+}
