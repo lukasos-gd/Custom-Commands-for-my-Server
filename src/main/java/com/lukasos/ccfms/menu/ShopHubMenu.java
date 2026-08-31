@@ -12,7 +12,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemLore;
 
@@ -37,7 +36,7 @@ public class ShopHubMenu extends AbstractContainerMenu {
             categoryBySlot.put(slot, category);
         }
 
-        ItemStack filler = new ItemStack(Items.GRAY_STAINED_GLASS_PANE);
+        ItemStack filler = new ItemStack(ShopFiller.ITEM);
         filler.set(DataComponents.CUSTOM_NAME, Component.literal(" "));
         for (int i = 0; i < 27; i++) {
             if (container.getItem(i).isEmpty()) {
