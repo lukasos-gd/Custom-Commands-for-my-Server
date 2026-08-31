@@ -10,6 +10,7 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -64,21 +65,36 @@ public class ShopHubMenu extends AbstractContainerMenu {
         ItemStack stack = new ItemStack(category.icon);
         stack.set(DataComponents.CUSTOM_NAME, Component.literal(category.name).withStyle(ChatFormatting.GOLD));
         stack.set(DataComponents.LORE, new ItemLore(List.of(
-                Component.literal(category.entries.size() + " items available").withStyle(ChatFormatting.GRAY),
-                Component.literal("Click to browse").withStyle(ChatFormatting.GRAY)
+                Component.literal(category.description).withStyle(ChatFormatting.GRAY),
+                Component.literal(""),
+                Component.literal("Catalog: ").withStyle(ChatFormatting.WHITE)
+                        .append(Component.literal(category.entries.size() + " items").withStyle(ChatFormatting.YELLOW)),
+                Component.literal(""),
+                Component.literal("Click to browse category!").withStyle(ChatFormatting.YELLOW)
         )));
         return stack;
     }
 
-    private void handleSlotAction(int slotIndex, ServerPlayer player) {
+    @Override
+    public void clicked(int slotIndex, int buttonNum, ContainerInput containerInput, Player player) {
+        if (slotIndex < 0 || slotIndex >= 27) {
+            super.clicked(slotIndex, buttonNum, containerInput, player);
+            return;
+        }
+
+        if (!(player instanceof ServerPlayer serverPlayer)) {
+            return;
+        }
+
         ShopCategory category = categoryBySlot.get(slotIndex);
         if (category == null) {
             return;
         }
-        player.openMenu(new MenuProvider() {
+
+        serverPlayer.openMenu(new MenuProvider() {
             @Override
             public Component getDisplayName() {
-                return Component.literal(category.name);
+                return Component.literal("Shop: " + category.name);
             }
 
             @Override
@@ -98,19 +114,13 @@ public class ShopHubMenu extends AbstractContainerMenu {
         return true;
     }
 
-    private class HubSlot extends Slot {
-        private final int slotIndex;
-
+    private static class HubSlot extends Slot {
         HubSlot(Container container, int slotIndex, int x, int y) {
             super(container, slotIndex, x, y);
-            this.slotIndex = slotIndex;
         }
 
         @Override
         public boolean mayPickup(Player player) {
-            if (player instanceof ServerPlayer serverPlayer) {
-                handleSlotAction(slotIndex, serverPlayer);
-            }
             return false;
         }
 
