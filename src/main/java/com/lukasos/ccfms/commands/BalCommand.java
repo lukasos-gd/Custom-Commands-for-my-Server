@@ -2,6 +2,7 @@ package com.lukasos.ccfms.commands;
 
 import com.lukasos.ccfms.CcfmsMod;
 import com.mojang.brigadier.CommandDispatcher;
+import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
@@ -25,13 +26,15 @@ public class BalCommand {
             return 0;
         }
         double balance = CcfmsMod.economyManager.getBalance(player.getUUID());
-        source.sendSuccess(() -> Component.literal(String.format("Your balance: $%.2f", balance)), false);
+        source.sendSuccess(() -> Component.literal("Your balance: ").withStyle(ChatFormatting.GRAY)
+                .append(Component.literal(String.format("$%.2f", balance)).withStyle(ChatFormatting.GOLD)), false);
         return 1;
     }
 
     private static int balOther(CommandSourceStack source, ServerPlayer target) {
         double balance = CcfmsMod.economyManager.getBalance(target.getUUID());
-        source.sendSuccess(() -> Component.literal(String.format("%s's balance: $%.2f", target.getName().getString(), balance)), false);
+        source.sendSuccess(() -> Component.literal(target.getName().getString() + "'s balance: ").withStyle(ChatFormatting.GRAY)
+                .append(Component.literal(String.format("$%.2f", balance)).withStyle(ChatFormatting.GOLD)), false);
         return 1;
     }
 }
