@@ -11,6 +11,7 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Items;
@@ -26,9 +27,11 @@ public class ShopMenu extends AbstractContainerMenu {
 
     private final SimpleContainer shopContainer = new SimpleContainer(27);
     private final Map<Integer, ShopEntry> catalogBySlot = new HashMap<>();
+    private final ShopCategory category;
 
     public ShopMenu(int containerId, Inventory playerInventory, ShopCategory category) {
         super(MenuType.GENERIC_9x3, containerId);
+        this.category = category;
 
         for (ShopEntry entry : category.entries) {
             shopContainer.setItem(entry.slot, buildDisplayItem(entry));
@@ -64,10 +67,17 @@ public class ShopMenu extends AbstractContainerMenu {
 
     private ItemStack buildDisplayItem(ShopEntry entry) {
         ItemStack stack = new ItemStack(entry.item);
-        stack.set(DataComponents.CUSTOM_NAME, stack.getHoverName().copy().withStyle(ChatFormatting.YELLOW));
+        ChatFormatting tier = ShopTier.colorFor(entry.buyPrice);
+        stack.set(DataComponents.CUSTOM_NAME, stack.getHoverName().copy().withStyle(tier));
         stack.set(DataComponents.LORE, new ItemLore(List.of(
-                Component.literal(String.format("Price: $%.2f", entry.price)).withStyle(ChatFormatting.GOLD),
-                Component.literal("Click to buy 1").withStyle(ChatFormatting.GRAY)
+                Component.literal("Left-click to choose quantity").withStyle(ChatFormatting.GREEN),
+                Component.literal("Right-click to sell 1").withStyle(ChatFormatting.YELLOW),
+                Component.literal("Shift-right-click to sell as much as possible").withStyle(ChatFormatting.GRAY),
+                Component.literal(""),
+                Component.literal("Buy: ").withStyle(ChatFormatting.WHITE)
+                        .append(Component.literal(String.format("$%.2f", entry.buyPrice)).withStyle(ChatFormatting.GREEN)),
+                Component.literal("Sell: ").withStyle(ChatFormatting.WHITE)
+                        .append(Component.literal(String.format("$%.2f", entry.sellPrice)).withStyle(ChatFormatting.RED))
         )));
         return stack;
     }
@@ -78,10 +88,19 @@ public class ShopMenu extends AbstractContainerMenu {
         return back;
     }
 
-    private void handleSlotAction(int slotIndex, ServerPlayer player) {
+    @Override
+    public void clicked(int slotIndex, int buttonNum, ContainerInput containerInput, Player player) {
+        if (slotIndex < 0 || slotIndex >= 27) {
+            super.clicked(slotIndex, buttonNum, containerInput, player);
+            return;
+        }
+
+        if (!(player instanceof ServerPlayer serverPlayer)) {
+            return;
+        }
+
         if (slotIndex == BACK_SLOT) {
-            shopContainer.setItem(BACK_SLOT, buildBackButton());
-            player.openMenu(new MenuProvider() {
+            serverPlayer.openMenu(new MenuProvider() {
                 @Override
                 public Component getDisplayName() {
                     return Component.literal("Shop");
@@ -100,19 +119,72 @@ public class ShopMenu extends AbstractContainerMenu {
             return;
         }
 
-        boolean success = CcfmsMod.economyManager.removeBalance(player.getUUID(), entry.price);
-        if (success) {
-            ItemStack toGive = new ItemStack(entry.item, 1);
-            if (!player.getInventory().add(toGive)) {
-                player.drop(toGive, false);
-            }
-            player.sendSystemMessage(Component.literal(String.format("Bought %s for $%.2f.",
-                    toGive.getHoverName().getString(), entry.price)));
-        } else {
-            player.sendSystemMessage(Component.literal(String.format("You don't have enough money. This costs $%.2f.", entry.price)));
+        boolean rightClick = buttonNum == 1;
+        boolean shiftHeld = containerInput == ContainerInput.QUICK_MOVE;
+
+        if (rightClick && shiftHeld) {
+            sellFromInventory(serverPlayer, entry, true);
+        } else if (rightClick) {
+            sellFromInventory(serverPlayer, entry, false);
+        } else if (!shiftHeld) {
+            serverPlayer.openMenu(new MenuProvider() {
+                @Override
+                public Component getDisplayName() {
+                    return Component.literal("Confirm Purchase");
+                }
+
+                @Override
+                public AbstractContainerMenu createMenu(int containerId, Inventory inv, Player p) {
+                    return new ConfirmPurchaseMenu(containerId, inv, entry, category);
+                }
+            });
+        }
+    }
+
+    private void sellFromInventory(ServerPlayer player, ShopEntry entry, boolean sellMax) {
+        Container inv = player.getInventory();
+        int toSell = sellMax ? countMatching(inv, entry) : 1;
+        if (toSell <= 0) {
+            player.sendSystemMessage(Component.literal("You don't have any " + new ItemStack(entry.item).getHoverName().getString() + " to sell."));
+            return;
         }
 
-        shopContainer.setItem(slotIndex, buildDisplayItem(entry));
+        int sold = removeMatching(inv, entry, toSell);
+        if (sold <= 0) {
+            player.sendSystemMessage(Component.literal("You don't have any " + new ItemStack(entry.item).getHoverName().getString() + " to sell."));
+            return;
+        }
+
+        double total = entry.sellPrice * sold;
+        CcfmsMod.economyManager.addBalance(player.getUUID(), total);
+        player.sendSystemMessage(Component.literal(String.format("Sold %dx %s for $%.2f.",
+                sold, new ItemStack(entry.item).getHoverName().getString(), total)));
+    }
+
+    private int countMatching(Container inv, ShopEntry entry) {
+        int total = 0;
+        for (int i = 0; i < inv.getContainerSize(); i++) {
+            ItemStack stack = inv.getItem(i);
+            if (!stack.isEmpty() && stack.getItem() == entry.item) {
+                total += stack.getCount();
+            }
+        }
+        return total;
+    }
+
+    private int removeMatching(Container inv, ShopEntry entry, int amount) {
+        int remaining = amount;
+        for (int i = 0; i < inv.getContainerSize() && remaining > 0; i++) {
+            ItemStack stack = inv.getItem(i);
+            if (stack.isEmpty() || stack.getItem() != entry.item) {
+                continue;
+            }
+            int take = Math.min(remaining, stack.getCount());
+            stack.shrink(take);
+            inv.setItem(i, stack);
+            remaining -= take;
+        }
+        return amount - remaining;
     }
 
     @Override
@@ -125,19 +197,13 @@ public class ShopMenu extends AbstractContainerMenu {
         return true;
     }
 
-    private class ShopSlot extends Slot {
-        private final int slotIndex;
-
+    private static class ShopSlot extends Slot {
         ShopSlot(Container container, int slotIndex, int x, int y) {
             super(container, slotIndex, x, y);
-            this.slotIndex = slotIndex;
         }
 
         @Override
         public boolean mayPickup(Player player) {
-            if (player instanceof ServerPlayer serverPlayer) {
-                handleSlotAction(slotIndex, serverPlayer);
-            }
             return false;
         }
 
@@ -146,4 +212,4 @@ public class ShopMenu extends AbstractContainerMenu {
             return false;
         }
     }
-}
+            }
