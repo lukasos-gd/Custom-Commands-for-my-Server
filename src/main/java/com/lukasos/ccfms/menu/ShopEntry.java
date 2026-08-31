@@ -5,11 +5,17 @@ import net.minecraft.world.item.Item;
 public class ShopEntry {
     public final int slot;
     public final Item item;
-    public final double price;
+    public final double buyPrice;
+    public final double sellPrice;
 
-    public ShopEntry(int slot, Item item, double price) {
+    public ShopEntry(int slot, Item item, double buyPrice) {
+        this(slot, item, buyPrice, buyPrice * 0.5);
+    }
+
+    public ShopEntry(int slot, Item item, double buyPrice, double sellPrice) {
         this.slot = slot;
         this.item = item;
-        this.price = price;
+        this.buyPrice = buyPrice;
+        this.sellPrice = sellPrice;
     }
 }
