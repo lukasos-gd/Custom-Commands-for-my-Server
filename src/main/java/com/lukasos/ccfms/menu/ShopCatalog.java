@@ -15,7 +15,15 @@ public class ShopCatalog {
                     new ShopEntry(14, Items.DIRT, 0.5),
                     new ShopEntry(15, Items.GRAVEL, 1.0),
                     new ShopEntry(16, Items.ANDESITE, 1.5),
-                    new ShopEntry(17, Items.GRANITE, 1.5)
+                    new ShopEntry(17, Items.GRANITE, 1.5),
+                    new ShopEntry(18, Items.DIORITE, 1.5),
+                    new ShopEntry(19, Items.CLAY, 1.5),
+                    new ShopEntry(20, Items.TERRACOTTA, 1.5),
+                    new ShopEntry(21, Items.OBSIDIAN, 6.0),
+                    new ShopEntry(23, Items.NETHERRACK, 1.0),
+                    new ShopEntry(24, Items.END_STONE, 2.0),
+                    new ShopEntry(25, Items.PACKED_ICE, 2.5),
+                    new ShopEntry(26, Items.MOSS_BLOCK, 2.0)
             )),
             new ShopCategory("Ores & Ingots", "Raw ores and refined ingots for crafting and trading.", Items.IRON_INGOT, List.of(
                     new ShopEntry(9, Items.COAL, 2.0),
@@ -26,7 +34,15 @@ public class ShopCatalog {
                     new ShopEntry(14, Items.REDSTONE, 3.0),
                     new ShopEntry(15, Items.LAPIS_LAZULI, 3.0),
                     new ShopEntry(16, Items.COPPER_INGOT, 10.0),
-                    new ShopEntry(17, Items.NETHERITE_SCRAP, 250.0)
+                    new ShopEntry(17, Items.NETHERITE_SCRAP, 250.0),
+                    new ShopEntry(18, Items.NETHERITE_INGOT, 400.0),
+                    new ShopEntry(19, Items.RAW_IRON, 10.0),
+                    new ShopEntry(20, Items.RAW_GOLD, 18.0),
+                    new ShopEntry(21, Items.RAW_COPPER, 6.0),
+                    new ShopEntry(23, Items.AMETHYST_SHARD, 6.0),
+                    new ShopEntry(24, Items.QUARTZ, 4.0),
+                    new ShopEntry(25, Items.GOLD_NUGGET, 2.0),
+                    new ShopEntry(26, Items.IRON_NUGGET, 1.0)
             )),
             new ShopCategory("Farm and Food", "Resources for growing crops, tree farming, and cooked meals.", Items.BREAD, List.of(
                     new ShopEntry(9, Items.BREAD, 2.0),
@@ -37,7 +53,15 @@ public class ShopCatalog {
                     new ShopEntry(14, Items.POTATO, 1.0),
                     new ShopEntry(15, Items.COOKED_CHICKEN, 3.0),
                     new ShopEntry(16, Items.MELON_SLICE, 1.0),
-                    new ShopEntry(17, Items.PUMPKIN_PIE, 5.0)
+                    new ShopEntry(17, Items.PUMPKIN_PIE, 5.0),
+                    new ShopEntry(18, Items.COOKED_PORKCHOP, 4.0),
+                    new ShopEntry(19, Items.COOKED_MUTTON, 4.0),
+                    new ShopEntry(20, Items.COOKED_SALMON, 3.5),
+                    new ShopEntry(21, Items.COOKED_COD, 3.0),
+                    new ShopEntry(23, Items.CAKE, 8.0),
+                    new ShopEntry(24, Items.COOKIE, 1.0),
+                    new ShopEntry(25, Items.HONEY_BOTTLE, 3.0),
+                    new ShopEntry(26, Items.MILK_BUCKET, 3.0)
             )),
             new ShopCategory("Combat", "Weapons and armor to gain the advantage in any fight.", Items.IRON_SWORD, List.of(
                     new ShopEntry(9, Items.ARROW, 0.5),
@@ -48,7 +72,15 @@ public class ShopCatalog {
                     new ShopEntry(14, Items.SHIELD, 20.0),
                     new ShopEntry(15, Items.IRON_CHESTPLATE, 60.0),
                     new ShopEntry(16, Items.IRON_HELMET, 35.0),
-                    new ShopEntry(17, Items.TOTEM_OF_UNDYING, 300.0)
+                    new ShopEntry(17, Items.TOTEM_OF_UNDYING, 300.0),
+                    new ShopEntry(18, Items.IRON_LEGGINGS, 55.0),
+                    new ShopEntry(19, Items.IRON_BOOTS, 30.0),
+                    new ShopEntry(20, Items.DIAMOND_CHESTPLATE, 200.0),
+                    new ShopEntry(21, Items.DIAMOND_HELMET, 120.0),
+                    new ShopEntry(23, Items.SPECTRAL_ARROW, 1.0),
+                    new ShopEntry(24, Items.TIPPED_ARROW, 2.0),
+                    new ShopEntry(25, Items.TRIDENT, 150.0),
+                    new ShopEntry(26, Items.NETHERITE_SWORD, 500.0)
             )),
             new ShopCategory("Wood & Building", "Planks, stairs, doors, and decorative building pieces.", Items.OAK_PLANKS, List.of(
                     new ShopEntry(9, Items.OAK_PLANKS, 0.5),
@@ -59,7 +91,15 @@ public class ShopCatalog {
                     new ShopEntry(14, Items.OAK_FENCE, 1.0),
                     new ShopEntry(15, Items.GLASS_PANE, 1.0),
                     new ShopEntry(16, Items.BRICK, 2.0),
-                    new ShopEntry(17, Items.STONE_BRICKS, 1.5)
+                    new ShopEntry(17, Items.STONE_BRICKS, 1.5),
+                    new ShopEntry(18, Items.SPRUCE_PLANKS, 0.5),
+                    new ShopEntry(19, Items.BIRCH_PLANKS, 0.5),
+                    new ShopEntry(20, Items.DARK_OAK_PLANKS, 0.5),
+                    new ShopEntry(21, Items.OAK_TRAPDOOR, 2.0),
+                    new ShopEntry(23, Items.OAK_FENCE_GATE, 1.5),
+                    new ShopEntry(24, Items.SCAFFOLDING, 1.0),
+                    new ShopEntry(25, Items.WHITE_WOOL, 1.5),
+                    new ShopEntry(26, Items.BOOKSHELF, 5.0)
             )),
             new ShopCategory("Redstone", "Engineering supplies for circuits and automation.", Items.REDSTONE, List.of(
                     new ShopEntry(9, Items.REDSTONE, 3.0),
@@ -70,7 +110,15 @@ public class ShopCatalog {
                     new ShopEntry(14, Items.REDSTONE_TORCH, 2.0),
                     new ShopEntry(15, Items.LEVER, 1.0),
                     new ShopEntry(16, Items.REDSTONE_LAMP, 6.0),
-                    new ShopEntry(17, Items.OBSERVER, 12.0)
+                    new ShopEntry(17, Items.OBSERVER, 12.0),
+                    new ShopEntry(18, Items.DROPPER, 5.0),
+                    new ShopEntry(19, Items.DISPENSER, 6.0),
+                    new ShopEntry(20, Items.HOPPER, 15.0),
+                    new ShopEntry(21, Items.TRIPWIRE_HOOK, 2.0),
+                    new ShopEntry(23, Items.TARGET, 4.0),
+                    new ShopEntry(24, Items.DAYLIGHT_DETECTOR, 8.0),
+                    new ShopEntry(25, Items.REDSTONE_BLOCK, 25.0),
+                    new ShopEntry(26, Items.NOTE_BLOCK, 3.0)
             )),
             new ShopCategory("Farming Supplies", "Seeds, saplings, and tools for growing your own food.", Items.WHEAT, List.of(
                     new ShopEntry(9, Items.WHEAT_SEEDS, 0.5),
@@ -81,7 +129,15 @@ public class ShopCatalog {
                     new ShopEntry(14, Items.WHEAT, 1.5),
                     new ShopEntry(15, Items.HAY_BLOCK, 5.0),
                     new ShopEntry(16, Items.PUMPKIN_SEEDS, 0.5),
-                    new ShopEntry(17, Items.MELON_SEEDS, 0.5)
+                    new ShopEntry(17, Items.MELON_SEEDS, 0.5),
+                    new ShopEntry(18, Items.BEETROOT_SEEDS, 0.5),
+                    new ShopEntry(19, Items.SUGAR_CANE, 0.5),
+                    new ShopEntry(20, Items.COCOA_BEANS, 1.0),
+                    new ShopEntry(21, Items.NETHER_WART, 1.0),
+                    new ShopEntry(23, Items.SWEET_BERRIES, 1.0),
+                    new ShopEntry(24, Items.COMPOSTER, 3.0),
+                    new ShopEntry(25, Items.BEE_NEST, 20.0),
+                    new ShopEntry(26, Items.FLOWER_POT, 1.0)
             )),
             new ShopCategory("Tools", "Essential tools for mining, chopping, and everyday tasks.", Items.IRON_PICKAXE, List.of(
                     new ShopEntry(9, Items.IRON_PICKAXE, 25.0),
@@ -92,7 +148,15 @@ public class ShopCatalog {
                     new ShopEntry(14, Items.FLINT_AND_STEEL, 8.0),
                     new ShopEntry(15, Items.SHEARS, 10.0),
                     new ShopEntry(16, Items.BUCKET, 5.0),
-                    new ShopEntry(17, Items.COMPASS, 6.0)
+                    new ShopEntry(17, Items.COMPASS, 6.0),
+                    new ShopEntry(18, Items.DIAMOND_PICKAXE, 120.0),
+                    new ShopEntry(19, Items.DIAMOND_AXE, 120.0),
+                    new ShopEntry(20, Items.CLOCK, 6.0),
+                    new ShopEntry(21, Items.SPYGLASS, 20.0),
+                    new ShopEntry(23, Items.LEAD, 4.0),
+                    new ShopEntry(24, Items.NAME_TAG, 10.0),
+                    new ShopEntry(25, Items.SADDLE, 15.0),
+                    new ShopEntry(26, Items.WATER_BUCKET, 6.0)
             ))
     );
 }
