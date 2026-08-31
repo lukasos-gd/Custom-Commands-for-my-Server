@@ -98,7 +98,7 @@ public class ShopCatalog {
                     new ShopEntry(21, Items.OAK_TRAPDOOR, 2.0),
                     new ShopEntry(23, Items.OAK_FENCE_GATE, 1.5),
                     new ShopEntry(24, Items.SCAFFOLDING, 1.0),
-                    new ShopEntry(25, Items.WHITE_WOOL, 1.5),
+                    new ShopEntry(25, Items.CHEST, 1.5),
                     new ShopEntry(26, Items.BOOKSHELF, 5.0)
             )),
             new ShopCategory("Redstone", "Engineering supplies for circuits and automation.", Items.REDSTONE, List.of(
