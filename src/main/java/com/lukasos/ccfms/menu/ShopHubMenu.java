@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ShopHubMenu extends AbstractContainerMenu {
-    private static final int[] CATEGORY_SLOTS = {11, 13, 15, 17};
+    private static final int[] CATEGORY_SLOTS = {10, 12, 14, 16, 19, 21, 23, 25};
 
     private final SimpleContainer container = new SimpleContainer(27);
     private final Map<Integer, ShopCategory> categoryBySlot = new HashMap<>();
@@ -37,7 +37,7 @@ public class ShopHubMenu extends AbstractContainerMenu {
             categoryBySlot.put(slot, category);
         }
 
-        ItemStack filler = new ItemStack(Items.BARRIER);
+        ItemStack filler = new ItemStack(Items.GRAY_STAINED_GLASS_PANE);
         filler.set(DataComponents.CUSTOM_NAME, Component.literal(" "));
         for (int i = 0; i < 27; i++) {
             if (container.getItem(i).isEmpty()) {
