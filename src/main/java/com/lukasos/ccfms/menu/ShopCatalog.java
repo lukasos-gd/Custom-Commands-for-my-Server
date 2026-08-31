@@ -6,7 +6,7 @@ import java.util.List;
 
 public class ShopCatalog {
     public static final List<ShopCategory> CATEGORIES = List.of(
-            new ShopCategory("Blocks", Items.COBBLESTONE, List.of(
+            new ShopCategory("Blocks", "Essential construction materials for your next project.", Items.COBBLESTONE, List.of(
                     new ShopEntry(9, Items.COBBLESTONE, 1.0),
                     new ShopEntry(10, Items.STONE, 1.5),
                     new ShopEntry(11, Items.OAK_LOG, 3.0),
@@ -17,7 +17,7 @@ public class ShopCatalog {
                     new ShopEntry(16, Items.ANDESITE, 1.5),
                     new ShopEntry(17, Items.GRANITE, 1.5)
             )),
-            new ShopCategory("Ores & Ingots", Items.IRON_INGOT, List.of(
+            new ShopCategory("Ores & Ingots", "Raw ores and refined ingots for crafting and trading.", Items.IRON_INGOT, List.of(
                     new ShopEntry(9, Items.COAL, 2.0),
                     new ShopEntry(10, Items.IRON_INGOT, 15.0),
                     new ShopEntry(11, Items.GOLD_INGOT, 25.0),
@@ -28,7 +28,7 @@ public class ShopCatalog {
                     new ShopEntry(16, Items.COPPER_INGOT, 10.0),
                     new ShopEntry(17, Items.NETHERITE_SCRAP, 250.0)
             )),
-            new ShopCategory("Food", Items.BREAD, List.of(
+            new ShopCategory("Farm and Food", "Resources for growing crops, tree farming, and cooked meals.", Items.BREAD, List.of(
                     new ShopEntry(9, Items.BREAD, 2.0),
                     new ShopEntry(10, Items.APPLE, 2.0),
                     new ShopEntry(11, Items.COOKED_BEEF, 4.0),
@@ -39,7 +39,7 @@ public class ShopCatalog {
                     new ShopEntry(16, Items.MELON_SLICE, 1.0),
                     new ShopEntry(17, Items.PUMPKIN_PIE, 5.0)
             )),
-            new ShopCategory("Combat", Items.IRON_SWORD, List.of(
+            new ShopCategory("Combat", "Weapons and armor to gain the advantage in any fight.", Items.IRON_SWORD, List.of(
                     new ShopEntry(9, Items.ARROW, 0.5),
                     new ShopEntry(10, Items.IRON_SWORD, 30.0),
                     new ShopEntry(11, Items.DIAMOND_SWORD, 120.0),
@@ -50,7 +50,7 @@ public class ShopCatalog {
                     new ShopEntry(16, Items.IRON_HELMET, 35.0),
                     new ShopEntry(17, Items.TOTEM_OF_UNDYING, 300.0)
             )),
-            new ShopCategory("Wood & Building", Items.OAK_PLANKS, List.of(
+            new ShopCategory("Wood & Building", "Planks, stairs, doors, and decorative building pieces.", Items.OAK_PLANKS, List.of(
                     new ShopEntry(9, Items.OAK_PLANKS, 0.5),
                     new ShopEntry(10, Items.OAK_STAIRS, 1.0),
                     new ShopEntry(11, Items.OAK_SLAB, 0.5),
@@ -61,7 +61,7 @@ public class ShopCatalog {
                     new ShopEntry(16, Items.BRICK, 2.0),
                     new ShopEntry(17, Items.STONE_BRICKS, 1.5)
             )),
-            new ShopCategory("Redstone", Items.REDSTONE, List.of(
+            new ShopCategory("Redstone", "Engineering supplies for circuits and automation.", Items.REDSTONE, List.of(
                     new ShopEntry(9, Items.REDSTONE, 3.0),
                     new ShopEntry(10, Items.REPEATER, 5.0),
                     new ShopEntry(11, Items.COMPARATOR, 8.0),
@@ -72,7 +72,7 @@ public class ShopCatalog {
                     new ShopEntry(16, Items.REDSTONE_LAMP, 6.0),
                     new ShopEntry(17, Items.OBSERVER, 12.0)
             )),
-            new ShopCategory("Farming", Items.WHEAT, List.of(
+            new ShopCategory("Farming Supplies", "Seeds, saplings, and tools for growing your own food.", Items.WHEAT, List.of(
                     new ShopEntry(9, Items.WHEAT_SEEDS, 0.5),
                     new ShopEntry(10, Items.OAK_SAPLING, 1.0),
                     new ShopEntry(11, Items.BONE_MEAL, 1.0),
@@ -83,7 +83,7 @@ public class ShopCatalog {
                     new ShopEntry(16, Items.PUMPKIN_SEEDS, 0.5),
                     new ShopEntry(17, Items.MELON_SEEDS, 0.5)
             )),
-            new ShopCategory("Tools", Items.IRON_PICKAXE, List.of(
+            new ShopCategory("Tools", "Essential tools for mining, chopping, and everyday tasks.", Items.IRON_PICKAXE, List.of(
                     new ShopEntry(9, Items.IRON_PICKAXE, 25.0),
                     new ShopEntry(10, Items.IRON_AXE, 25.0),
                     new ShopEntry(11, Items.IRON_SHOVEL, 15.0),
