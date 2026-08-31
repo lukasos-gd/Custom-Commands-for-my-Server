@@ -37,7 +37,7 @@ public class ShopMenu extends AbstractContainerMenu {
 
         shopContainer.setItem(BACK_SLOT, buildBackButton());
 
-        ItemStack filler = new ItemStack(Items.BARRIER);
+        ItemStack filler = new ItemStack(Items.GRAY_STAINED_GLASS_PANE);
         filler.set(DataComponents.CUSTOM_NAME, Component.literal(" "));
         for (int i = 0; i < 27; i++) {
             if (shopContainer.getItem(i).isEmpty()) {
