@@ -3,8 +3,10 @@ package com.lukasos.ccfms.commands;
 import com.lukasos.ccfms.CcfmsMod;
 import com.lukasos.ccfms.data.PlayerRecord;
 import com.mojang.brigadier.CommandDispatcher;
+import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 
 import java.util.List;
 import java.util.Map;
@@ -23,21 +25,33 @@ public class BaltopCommand {
     private static int baltop(CommandSourceStack source) {
         List<Map.Entry<UUID, Double>> top = CcfmsMod.economyManager.topBalances(TOP_COUNT);
         if (top.isEmpty()) {
-            source.sendSuccess(() -> Component.literal("No balances recorded yet."), false);
+            source.sendSuccess(() -> Component.literal("No balances recorded yet.").withStyle(ChatFormatting.GRAY), false);
             return 1;
         }
 
-        StringBuilder sb = new StringBuilder("--- Top Balances ---\n");
+        MutableComponent msg = Component.literal("--- Top Balances ---\n").withStyle(ChatFormatting.GOLD);
         int rank = 1;
         for (Map.Entry<UUID, Double> entry : top) {
             PlayerRecord record = CcfmsMod.playerRegistry.getRecord(entry.getKey());
             String name = record != null ? record.name : entry.getKey().toString().substring(0, 8);
-            sb.append(String.format("%d. %s - $%.2f%n", rank, name, entry.getValue()));
+
+            ChatFormatting rankColor = switch (rank) {
+                case 1 -> ChatFormatting.GOLD;
+                case 2 -> ChatFormatting.GRAY;
+                case 3 -> ChatFormatting.RED;
+                default -> ChatFormatting.WHITE;
+            };
+
+            msg.append(Component.literal(rank + ". ").withStyle(rankColor))
+                    .append(Component.literal(name).withStyle(ChatFormatting.YELLOW))
+                    .append(Component.literal(" - ").withStyle(ChatFormatting.GRAY))
+                    .append(Component.literal(String.format("$%.2f", entry.getValue())).withStyle(ChatFormatting.GREEN))
+                    .append(Component.literal("\n"));
+
             rank++;
         }
 
-        String result = sb.toString();
-        source.sendSuccess(() -> Component.literal(result), false);
+        source.sendSuccess(() -> msg, false);
         return 1;
     }
 }
