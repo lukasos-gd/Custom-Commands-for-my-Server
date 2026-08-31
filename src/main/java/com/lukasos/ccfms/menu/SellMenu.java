@@ -16,21 +16,23 @@ public class SellMenu extends AbstractContainerMenu {
     private boolean processing = false;
 
     public SellMenu(int containerId, Inventory playerInventory, ServerPlayer sellingPlayer) {
-        super(MenuType.GENERIC_9x1, containerId);
+        super(MenuType.GENERIC_9x3, containerId);
 
-        this.sellContainer = new SellContainer(9, () -> onContainerChanged(sellingPlayer));
+        this.sellContainer = new SellContainer(27, () -> onContainerChanged(sellingPlayer));
 
-        for (int col = 0; col < 9; col++) {
-            addSlot(new Slot(sellContainer, col, 8 + col * 18, 18));
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 9; col++) {
+                addSlot(new Slot(sellContainer, col + row * 9, 8 + col * 18, 18 + row * 18));
+            }
         }
 
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
-                addSlot(new Slot(playerInventory, col + row * 9 + 9, 8 + col * 18, 51 + row * 18));
+                addSlot(new Slot(playerInventory, col + row * 9 + 9, 8 + col * 18, 94 + row * 18));
             }
         }
         for (int col = 0; col < 9; col++) {
-            addSlot(new Slot(playerInventory, col, 8 + col * 18, 109));
+            addSlot(new Slot(playerInventory, col, 8 + col * 18, 152));
         }
     }
 
@@ -61,11 +63,11 @@ public class SellMenu extends AbstractContainerMenu {
         if (slot != null && slot.hasItem()) {
             ItemStack stackInSlot = slot.getItem();
             newStack = stackInSlot.copy();
-            if (index < 9) {
-                if (!this.moveItemStackTo(stackInSlot, 9, 45, true)) {
+            if (index < 27) {
+                if (!this.moveItemStackTo(stackInSlot, 27, 63, true)) {
                     return ItemStack.EMPTY;
                 }
-            } else if (!this.moveItemStackTo(stackInSlot, 0, 9, false)) {
+            } else if (!this.moveItemStackTo(stackInSlot, 0, 27, false)) {
                 return ItemStack.EMPTY;
             }
             if (stackInSlot.isEmpty()) {
